@@ -1,5 +1,7 @@
 package config;
 
+import model.Blog;
+
 import com.jfinal.config.Constants;
 import com.jfinal.config.Handlers;
 import com.jfinal.config.Interceptors;
@@ -7,9 +9,10 @@ import com.jfinal.config.JFinalConfig;
 import com.jfinal.config.Plugins;
 import com.jfinal.config.Routes;
 import com.jfinal.core.JFinal;
-//import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
-//import com.jfinal.plugin.c3p0.C3p0Plugin;
+import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
+import com.jfinal.plugin.c3p0.C3p0Plugin;
 
+import controller.BlogController;
 import controller.IndexController;
 
 /**
@@ -22,29 +25,30 @@ public class Config extends JFinalConfig {
 	 */
 	public void configConstant(Constants me) {
 		// 加载少量必要配置，随后可用getProperty(...)获取值
-		loadPropertyFile("a_little_config.txt");
-		me.setDevMode(getPropertyToBoolean("devMode", false));
+		loadPropertyFile("mysql_config.txt");
+		me.setDevMode(getPropertyToBoolean("devMode", true));
 	}
 	
 	/**
 	 * 配置路由
 	 */
 	public void configRoute(Routes me) {
-		me.add("/", IndexController.class, "/");	// 第三个参数为该Controller的视图存放路径
+		me.add("/", IndexController.class, "/index");	// 第三个参数为该Controller的视图存放路径
+		me.add("/blog",BlogController.class);
 	}
 	
 	/**
 	 * 配置插件
 	 */
 	public void configPlugin(Plugins me) {
-//		// 配置C3p0数据库连接池插件
-//		C3p0Plugin c3p0Plugin = new C3p0Plugin(getProperty("jdbcUrl"), getProperty("user"), getProperty("password").trim());
-//		me.add(c3p0Plugin);
+		// 配置C3p0数据库连接池插件
+		C3p0Plugin c3p0Plugin = new C3p0Plugin(getProperty("jdbcUrl"), getProperty("user"), getProperty("password").trim());
+		me.add(c3p0Plugin);
 		
-//		// 配置ActiveRecord插件
-//		ActiveRecordPlugin arp = new ActiveRecordPlugin(c3p0Plugin);
-//		me.add(arp);
-//		arp.addMapping("blog", Blog.class);	// 映射blog 表到 Blog模型
+		// 配置ActiveRecord插件
+		ActiveRecordPlugin arp = new ActiveRecordPlugin(c3p0Plugin);
+		me.add(arp);
+		arp.addMapping("blog", Blog.class);	// 映射blog 表到 Blog模型
 	}
 	
 	/**
